@@ -1,0 +1,124 @@
+﻿
+@model MVCCoreTutorial.Models.Yolo
+
+@{
+    ViewData["Title"] = "Yolo";
+
+    var HtmlMessage = "<b>this is a messgae.</b>";
+
+}
+
+<div class="text-left">
+    <h1 class="display-4">Yolo</h1>
+
+    @Model.ID
+
+    <br />
+
+    @Model.YoloMessage
+
+    <br />
+
+    @HtmlMessage
+
+    <br />
+
+    @Html.Raw(HtmlMessage)
+
+    <br />
+
+    @(1 + 1)
+
+    <br />
+
+    @(HtmlMessage.Length )
+
+    <br />
+
+    @{
+        var MultiMessage = "This is a multi message";
+
+        <p>This is markup @MultiMessage</p>
+
+    }
+
+    <br />
+
+    @MultiMessage
+
+    <br />
+
+    @{
+
+        List<string> list = new List<string>();
+        list.Add("Dave");
+        list.Add("Mike");
+        list.Add("Chuck");
+
+    }
+
+    <br />
+
+    <ul>
+        @for (int i = 0; i < list.Count; i++)
+        {
+            <li>@list[i]</li>
+        }
+    </ul>
+
+    <ul>
+        @foreach (string i in list)
+        {
+            <li>@i</li>
+        }
+    </ul>
+
+    @{
+        int k = 0;
+    }
+
+    <ul>
+        @while (k < list.Count)
+        {
+            <li>@list[k++]</li>
+        }
+    </ul>
+
+    @{
+        int j = 0;
+    }
+
+    <ul>
+        @do
+        {
+            <li>@list[j++]</li>
+        } while (j < list.Count);
+    </ul>
+
+    <ul>
+        @for (int l = 0; l < list.Count; l++)
+        {
+            <li>@list[l]</li>
+
+            @if (l >= 2)
+            {
+                <li>...and so on</li>
+
+                break;
+            }
+        }
+    </ul>
+
+    <br />
+
+    <br />
+
+    <br />
+
+    <br />
+
+
+
+
+
+</div>
