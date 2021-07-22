@@ -111,6 +111,92 @@
 
     <br />
 
+    @switch (DateTime.Now.DayOfWeek)
+    {
+        case DayOfWeek.Monday:
+            <span>Uh-oh...</span>
+            break;
+        case DayOfWeek.Friday:
+            <span>Weekend coming up!</span>
+            break;
+        case DayOfWeek.Saturday:
+        case DayOfWeek.Sunday:
+            <span>Finally weekend!</span>
+            break;
+        default:
+            <span>Nothing special about this day...</span>
+            break;
+    }
+
+    <br />
+    @{
+        void RenderTitleName()
+        {
+            <div>
+                This is rendered from a function.
+            </div>
+        }
+
+        int AnswerToLife(int x, int y)
+        {
+            return x * y;
+        }
+    }
+
+    @{
+        RenderTitleName();
+    }
+
+    <div>
+        The answer to life: @AnswerToLife(7, 6)
+    </div>
+    <br />
+
+    @{
+
+        Func<dynamic, object> YoloTemplate = @<div>@item.ID: @item.YoloMessage</div>;
+
+List<Yolo> yoloList = new List<Yolo>();
+
+Yolo y = new Yolo();
+y.ID = 12;
+y.YoloMessage = "this is me";
+yoloList.Add(y);
+
+y = new Yolo();
+y.ID = 42;
+y.YoloMessage = "Another time";
+yoloList.Add(y);
+
+    }
+
+
+    @foreach (Yolo yy in yoloList)
+    {
+
+        @YoloTemplate(yy);
+
+    }
+
+    <br />
+
+    @await Html.PartialAsync("_Greeting")
+
+    <br />
+    
+    @for (int i = 0; i < 3; i++)
+    {
+        @await Html.PartialAsync("_Greeting", Model, new ViewDataDictionary(ViewData) { { "index", i } })
+    }
+
+    <br />
+
+    <br />
+
+    <br />
+
+    <br />
+
     <br />
 
     <br />

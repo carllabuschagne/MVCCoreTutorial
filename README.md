@@ -483,6 +483,520 @@ Just like you would in C#.
     }
 </ul>
 ```
+
+<br />
+<br />
+
+**Razor Switch Case**
+<br />
+<br />
+Just like you would in C#. 
+```csharp
+@switch(DateTime.Now.DayOfWeek)
+{
+    case DayOfWeek.Monday:
+        <span>Uh-oh...</span>
+		break;
+	case DayOfWeek.Friday:
+		<span>Weekend coming up!</span>
+		break;
+	case DayOfWeek.Saturday:
+	case DayOfWeek.Sunday:
+		<span>Finally weekend!</span>
+		break;
+	default:
+		<span>Nothing special about this day...</span>
+		break;
+}
+```
+
+<br />
+<br />
+
+**Razor Local Functions**
+<br />
+<br />
+You can use these code blocks for pretty much anything that C# can do - you can even define local functions!
+```csharp
+@{
+    void RenderTitleName()
+    {
+        <div>
+            This is rendered from a function.
+        </div>
+    }
+
+    int AnswerToLife(int x, int y)
+    {
+        return x * y;
+    }
+}
+
+@{
+    RenderTitleName();
+}
+
+<div>
+    The answer to life: @AnswerToLife(7, 6)
+</div>
+```
+
+<br />
+<br />
+
+**Razor Templated delegates**
+<br />
+<br />
+The templated delegates functionality in Razor allows you to define a piece of markup and then have it used to represent a specific object on the page.
+```csharp
+@{
+    Func<dynamic, object> YoloTemplate = @<div>@item.ID: @item.YoloMessage</div>;
+
+    List<Yolo> yoloList = new List<Yolo>();
+
+    Yolo y = new Yolo();
+    y.ID = 12;
+    y.YoloMessage = "this is me";
+    yoloList.Add(y);
+
+    y = new Yolo();
+    y.ID = 42;
+    y.YoloMessage = "Another time";
+    yoloList.Add(y);
+}
+
+
+@foreach (Yolo yy in yoloList)
+{
+    @YoloTemplate(yy);
+}
+```
+
+<br />
+<br />
+
+**Controllers**
+<br />
+<br />
+In ASP.NET MVC, a Controller is just like any other class, so it has a .cs file extension (or .vb, if you use Visual Basic) and looks like any other .NET class. However, there are a few things that will allow you (and the .NET framework) to recognize it as an MVC Controller.
+<br />
+* It's usually placed in a folder called "Controllers" in the root of your project
+* It inherits from Microsoft.AspNetCore.Mvc.Controller (or from one of your own classes which then inherits the Microsoft.AspNetCore.Mvc.Controller class)
+* The name of the class will usually end with the word Controller, e.g. "HomeController" or "ProductsController"
+<br />
+<br />
+The **[Controller]** attribute can be placed right before a class declaration to define it as a Controller.
+
+<br />
+<br />
+
+**Controller Actions**
+<br />
+<br />
+Methods of a Controller class is referred to as actions - a method usually corresponds to an action in your application, which then returns something to the browser/user.
+<br />
+Routing is what connects URL's to actions on your Controllers.
+<br />
+All public methods on a Controller class is considered an Action.
+<br />
+If you really need a method to be public but not accessible by URL, you can mark the method with the [NonAction] attribute.
+
+<br />
+<br />
+
+**Action Verbs**
+<br />
+<br />
+These are in fact regular .NET attributes, which will tell the .NET framework how an action can be accessed.
+<br />
+<br />
+
+```csharp
+[HttpGet]
+public IActionResult Edit()
+{
+    return View();
+}
+
+[HttpPost]
+public IActionResult Edit(Product product)
+{
+    product.Save();
+    return Content("Product updated!");
+}
+```
+
+<br />
+<br />
+
+In some situations, you may want to specify multiple Action Verbs, e.g. to specify that an action can be accessed by both POST and GET requests but not other types.
+
+<br />
+<br />
+
+```csharp
+[HttpGet]
+[HttpPost]
+public IActionResult Edit()
+{
+    return View();
+}
+```
+
+<br />
+<br />
+
+**Action Results**
+<br />
+<br />
+When the Action (method) finishes it work, it will usually return something to the client and that something will usually be implementing the IActionResult interface (or Task IActionResult if the method is asynchronous).
+<br />
+<br />
+A view is far from the only possible result of a Controller action, though. Since the result will eventually be returned to a browser, the available methods should cover all possible outcomes of a HTTP request, so a Controller action can of course also result in a redirect, a 404 (Page not Found) or any of the other HTTP status codes. Here's an incomplete list of the most interesting and useful methods for generating an Action result:
+<br />
+* **Content()** - returns the specified string as plain text to the client (usually a browser)
+* **View()** - returns a View to the client
+* **PartialView()** - returns a Partial View (more on those elsewhere in this tutorial) to the client
+* **File()** - returns the content of a specified file to the client
+* **Json()** - returns a JSON response to the client
+* **Redirect()** and RedirectPermanent() - returns a redirect response to the browser (temporary or permanent), redirecting the user to another URL
+* **StatusCode()** - returns a custom status code to the client
+<br />
+<br />
+ If the product is found, we return it inside of a View using the View() method - if not, we return a 404 error using the NotFound() helper method, which basically just creates an instance of the NotFoundResult class.
+<br />
+
+```csharp
+public IActionResult Details(int id)  
+{  
+	Product product = GetProduct(id);
+	if (product != null)  
+        {
+            return View(product);  
+        }
+        else
+        {
+	        return NotFound();  
+        }
+}
+```
+
+<br />
+<br />
+
+**Views**
+<br />
+<br />
+A View contains markup (HTML) and Razor code and will often be a visual representation of your Model.
+<br />
+The Controller generates a Model object and then passes it to the View, which then uses the Model to visually represent the content of the Model to the user.
+<br />
+
+<br />
+<br />
+
+**View Discovery: Connecting Controller & View**
+<br />
+<br />
+View Discovery - a process where ASP.NET MVC will try to guess which View to use, without forcing you to specify it.
+<br />
+View Discovery works when you follow a certain convention when creating your project structure.
+<br />
+```csharp
+/Views/[Controller Name]/[Action Name].cshtml
+```
+
+<br />
+<br />
+
+you can simply call the View() method from your Controller actions and have the .NET framework automatically locate the proper View for you:
+
+<br />
+
+```csharp
+public class ProductController : Controller
+{
+    public IActionResult Index()
+    {
+        return View();
+    }
+
+    public IActionResult Details()
+    {
+        return View();
+    }
+}
+```
+
+<br />
+<br />
+
+If the framework can't find a matching View using the convention mentioned above, it will look in one more place:
+
+<br />
+
+```csharp
+/Views/Shared/[Action Name].cshtml
+```
+
+<br />
+<br />
+
+**Specifying a View**
+<br />
+<br />
+Supply the View name.
+<br />
+
+```csharp
+public IActionResult Test()
+{
+    return View("Details");
+}
+```
+
+<br />
+
+Specify the file path of the View
+<br />
+
+```csharp
+public IActionResult Test()
+{
+    return View("/ViewFolderName/SomeFolderName/ViewName.cshtml");
+}
+```
+
+<br />
+<br />
+
+**Passing data into Views**
+<br />
+<br />
+Since your View shouldn't have to know about your Controller (as per the rule of separation of concerns), your Controller is responsible for making the data available to the View. There are two main ways of doing this: Either you define a strongly typed Model and then pass it to the View, or you can use the ViewData/ViewBag containers to make data available to the View.
+<br />
+
+```csharp
+public IActionResult Details(int id)
+{
+    Product product = new Product()
+    {
+        Title = "Toilet Paper",
+        Price = 1.99
+    };
+    return View(product);
+}
+```
+<br />
+<br />
+
+```html
+@model HelloMVCWorld.Models.Product
+
+<h1>@Model.Title</h1>
+Price: @Model.Price
+```
+
+<br />
+<br />
+
+**ViewData/ViewBag containers**
+<br />
+<br />
+As an alternative to the strongly typed approach to passing data to a View, you can use the so-called ViewData/ViewBag containers. You can add stuff to them from the Controller and then automatically be able to access the stored data in your Views.
+<br />
+
+```csharp
+public IActionResult DetailsViewData(int id)
+{
+    ViewData["ProductTitle"] = "Toilet Paper";
+    ViewBag.ProductPrice = 1.99;
+    return View();
+}
+```
+<br />
+<br />
+
+```html
+<h1>@ViewData["ProducTtitle"]</h1>
+Price: @ViewBag.ProductPrice
+```
+
+<br />
+<br />
+
+**Partial Views**
+<br />
+<br />
+Partial views are regular views which are shown in other views. Create a view on the shared folder.
+<br />
+Use one of the methods of the Html Helper object found in the MVC framework called **PartialAsync()**.
+<br />
+
+```csharp
+@await Html.PartialAsync("_Greeting")
+```
+<br />
+<br />
+
+**Passing data into Partial Views**
+<br />
+<br />
+Since a Partial View is basically just a regular View, you have the same options if you need access to data in your Partial View. You can use a strongly typed Model (e.g. the same Model used in the parent View) or custom data through a ViewDataDictionary instance or even a combination of both.
+
+<br />
+<br />
+
+```csharp
+@for (int i = 0; i < 3; i++)
+{
+    @await Html.PartialAsync("_Greeting", Model, new ViewDataDictionary(ViewData) { { "index", i } })
+}
+```
+
+<br />
+<br />
+
+```html
+<span>
+    Iteration number @ViewData["index"]
+</span>
+```
+
+<br />
+<br />
+
+**Layout**
+<br />
+<br />
+In ASP.NET MVC, you can use something called a Layout, often in combination with Sections. You can have one or several Layouts in your project and each can include zero or more Sections.
+
+<br />
+<br />
+
+**Layout Files**
+<br />
+<br />
+Notice how it's almost just a regular HTML file, except for the **RenderBody()** Razor method. This part is required in a Layout file, because it specifies where the content of the page using the Layout should be placed.
+
+<br />
+<br />
+
+**_Layout.cshtml**
+
+```html
+<!DOCTYPE html>
+<html>
+<head>    
+    <title>Layout</title>
+</head>
+<body>
+
+    @RenderBody()
+
+</body>
+</html>
+```
+
+<br />
+<br />
+
+**LayoutTest.cshtml**
+
+```html
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<p>Hello, world!</p>
+```
+
+<br />
+<br />
+
+**The ViewStart file**
+<br />
+<br />
+ASP.NET MVC will automatically look for a ViewStart file and interpret it before it interprets the actual page/view.
+
+```html
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+```
+
+<br />
+<br />
+
+**Sections**
+<br />
+<br />
+Add a RenderSection() call to our existing Layout file.
+
+```html
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>_Layout</title>
+</head>
+<body>
+
+    @RenderBody()
+    
+    <p>Lots of Layout content goes here...</p>
+
+    @RenderSection("Footer")
+
+</body>
+</html>
+```
+<br />
+
+Then add a @section code block to the view to define the section.
+
+```html
+@section Footer {
+    Hello from the About page!
+}
+```
+
+<br />
+<br />
+
+**Optional Sections**
+<br />
+<br />
+By default, all sections are required, just like the body is.
+
+```html
+@RenderSection("Footer", required : false)
+```
+
+<br />
+<br />
+
+**The ViewImports file**
+<br />
+<br />
+Just like the _ViewStart.cshtml file, the _ViewImports.cshtml file is invoked for all your Views, before they are rendered. It allows you to define common functionality and imports, e.g. the already mentioned using statements.
+
+```html
+@using
+@inject
+@model
+@inherits
+@addTagHelper
+@removeTagHelper
+@tagHelperPrefix
+```
+<br />
+<br />
+
+
+
+
 <br />
 <br />
 <br />
@@ -491,4 +1005,4 @@ Just like you would in C#.
 <br />
 <br />
 <br />
-<br />
+
