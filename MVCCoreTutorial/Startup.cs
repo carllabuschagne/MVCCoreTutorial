@@ -52,6 +52,12 @@ namespace MVCCoreTutorial
 					name: "default",
 					pattern: "{controller=Home}/{action=Index}/{id?}");
 			});
+
+
+			app.UseMvc(routes =>
+	routes.MapRoute("ProductList", "Products/List/", new { controller = "Products", action = "List" })
+);
+
 		}
 	}
 }

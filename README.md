@@ -991,6 +991,50 @@ Just like the _ViewStart.cshtml file, the _ViewImports.cshtml file is invoked fo
 @removeTagHelper
 @tagHelperPrefix
 ```
+
+<br />
+<br />
+
+**Routing**
+<br />
+<br />
+Routing in MVC is the concept of mapping a URL, which is what the end-user will be requesting through their browser, to a method in one of your controllers, which will then send a response back to the browser. i.e. View, Json, Text, etc
+
+```csharp
+app.UseRouting();
+app.UseAuthorization();
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Home}/{action=Index}/{id?}");
+});
+```
+
+Here are some examples of URL's that now works and the Controller/Method combination that they map to:
+
+```csharp
+http://localhost/           ->      HomeController.Index()  
+http://localhost/Home/Index     ->      HomeController.Index()  
+http://localhost/Test/      ->      HomeController.Test()  
+http://localhost/Home/Something ->      HomeController.Something()
+```
+
+<br />
+<br />
+
+**The anatomy of an MVC Route**
+<br />
+<br />
+The call to MapRoute() takes several parameters - in this case, we supply a name for the route (the first parameter), the URL template for the rule (the second parameter), as well as an object of "defaults" (the third parameter), which will direct the rule to the desired Controller and method on that Controller. So, with this in place, we can now call the URL http://localhost/Products/List, and the List() method on the ProductsController will be called.
+```csharp
+app.UseMvc(routes =>
+    routes.MapRoute("ProductList", "Products/List/", new { controller = "Products", action = "List" })
+);
+```
+<br />
+<br />
+<br />
 <br />
 <br />
 
