@@ -1041,19 +1041,297 @@ We now support the following URL's:
 * /Products/Details/32/
 
 <br />
+
+Our Controller could look like this.
+
+```csharp
+public class ProductsController : Controller
+{
+    public IActionResult Index()
+    {
+        return Content("Product overview");
+    }
+    
+    public IActionResult List()
+    {
+        return Content("Product list");
+    }
+
+    public IActionResult Details(int id)
+    {
+        return Content("Product details for #" + id);
+    }
+}
+```
+
 <br />
+
+Notice especially the Details methods - it has a parameter called "id", which matches the parameter we specified in the route. This means that if you call the Details URL, the ID you append to it will automatically be passed as the id parameter to the Details method!
+
 <br />
+
+**Multiple Routes**
+
+The routing rules are processed from the top and down, until a match is found - when a match occurs, no more routes are processed. In other words, you should have your most specific rules at the top, and then keep the less specific/catch-all route(s) at the bottom.
+
+```csharp
+app.UseMvc(routes =>  
+            {  
+                routes.MapRoute("Products", "Products/{action=Index}/{id?}", new { controller = "Products" });  
+                routes.MapRoute("Default", "{controller=Home}/{action=Index}/{id?}");  
+            });
+```
+<br />
+
+**Attribute routing**
+
+Define a route directly on the responsible Controller and/or specifically for the responsible action/method.
+This defines the route for the index method.
+```csharp
+[Route("/products")]  
+public class ProductController : Controller  
+{         
+    public IActionResult Index()  
+    {  
+        return Content("Products Index");  
+    }  
+}
+```
+```html
+http://server/products/
+```
+
+<br />
+
+The Details method. It uses a special syntax for defining variable content. 
+It allows us to specify a parameter which will be passed to the responding method. 
+Our Controller now supports URL's like this one: /products/42 
+
+```csharp
+[Route("/products")]
+public class ProductController : Controller
+{           
+    public IActionResult Index()
+    {
+        return Content("Products Index");
+    }
+
+    [Route("{id}")]
+    public IActionResult Details(int id)
+    {
+        return Content("Product #" + id);
+    }
+}
+```
+
+<br />
+
+**Multiple Attribute Routes**
+
+With that in place, our product details page can now be accessed using both URL's.
+
+```csharp
+[Route("/products")]
+public class ProductController : Controller
+{           
+    public IActionResult Index()
+    {
+        return Content("Products Index");
+    }
+
+    [Route("{id}")]
+    [Route("/product/{id}")]
+    public IActionResult Details(int id)
+    {
+        return Content("Product #" + id);
+    }
+}
+```
+```html
+http://server/products/12
+http://server/product/12
+```
+
+<br />
+
+**Routing Templates**
+
+Here's an example of a routing template where we combine two parameters to create the classical [ID]/[URL_SLUG] URL:
+
+```csharp
+public class BlogController : Controller
+{
+    [Route("blogs/")]
+    public IActionResult Index()
+    {
+        return Content("blogs list here");
+    }
+
+    [Route("blogs/{entryId}/{slug}")]
+    [Route("blog/{entryId}/{slug}")]
+    public IActionResult Blog(int entryId, string slug)
+    {
+        return Content("Blog entry with ID " + entryId.ToString() + " requested (URL Slug: " + slug + ")");
+    }
+}
+```
+```html
+/blogs
+/blog/153/testing-asp-mvc-routes/
+/blogs/153/testing-asp-mvc-routes/
+```
+
+<br />
+
+**Catch-all parameters**
+
+A catch-all parameter is created by prefixing the name of the parameter with an asterisk (*) character, like this:
+
+```csharp
+[Route("blog/{entryId}/{*slug}")]
+public IActionResult Blog(int entryId, string slug)
+{
+    return Content($"Blog entry with ID #{entryId} requested (URL Slug: {slug})");
+}
+```
+```html
+URL:  
+/blog/153/testing-the/routing-system/    
+
+Output:
+Blog entry with ID #153 requested (URL Slug: testing-asp/mvc-routes)
+```
+
+<br />
+
+**Optional Parameters**
+
+sometimes you want to make one or several paramters optional, meaning that they can be omitted without the route failing to match the URL request.
+Making the slug part of the URL optional is as simple as adding a question mark (?) to the parameter name:
+
+```csharp
+[Route("blog/{entryId}/{slug?}")]
+public IActionResult Blog(int entryId, string slug = "") 
+{
+    return Content($"Blog entry with ID #{entryId} requested (URL Slug: {slug})");
+}
+```
+```html
+URL:  
+/blog/153/
+```
+
+<br />
+
+**Reserved routing names**
+
+* action
+* area
+* controller
+* handler
+* page
+
+<br />
+
+<br />
+
+**Routing Constraints**
+
+**Data type constraints**
+
+We have added an int constraint like this: {entryId:int}. Now the URL will only match the route if the entryId parameter is an integer, like this:
+
+```csharp
+[Route("blog/{entryId:int}/{slug}")]  
+public IActionResult Blog(int entryId, string slug)  
+{  
+    return Content($"Blog entry with ID #{entryId} requested (URL Slug: {slug})");
+}
+```
+```html
+URL:  
+/blog/153/testing-the-system/
+```
+
+**Data type constraints**
+
+* {**entryId:int**}
+* {**isVisible:bool**}
+* {**entryDate:datetime**}
+* {**weight:double**}
+* {**weight:float**}
+* {**price:decimal**}
+* {**id:guid**}
+* {**postId:long**}
+
+<br />
+
+**Length/range constraints**
+
+**min()**
+```csharp
+[Route("blog/{entryId:min(1)}/{slug}")]  
+public IActionResult Blog(int entryId, string slug)  
+{  
+    ....
+```
+
+**max()**
+```csharp
+[Route("blog/{entryId:max(10)}/{slug}")]  
+public IActionResult Blog(int entryId, string slug)  
+{  
+    ....
+```
+
+**range()**
+```csharp
+[Route("blog/{entryId:range(1, 999999)}/{slug}")]
+public IActionResult Blog(int entryId, string slug)
+{
+    ....
+```
+
+**Multiple Constraints**
+```csharp
+[Route("blog/{entryId:range(1, 999999)}/{slug:minlength(3)}")]
+public IActionResult Blog(int entryId, string slug)
+{
+    ....
+
+[Route("blog/{entryId:int:range(1, 999999)}/{slug:minlength(3):maxlength(50)}")]
+public IActionResult Blog(int entryId, string slug)
+{
+    ....
+```
+
+
+**Regular Expression constraints**
+
+**regex()**
+```csharp
+[Route(@"blog/{slug:regex(^[[0-9]]{{1,7}}\-[[a-z0-9\-]]{{3,50}}$)}")]    
+public IActionResult Blog(string slug)    
+{    
+    ....
+```
+
 <br />
 
 
 
 
-<br />
-<br />
-<br />
-<br />
-<br />
-<br />
+**Models**
+
+**regex()**
+```csharp
+[Route(@"blog/{slug:regex(^[[0-9]]{{1,7}}\-[[a-z0-9\-]]{{3,50}}$)}")]    
+public IActionResult Blog(string slug)    
+{    
+    ....
+```
+
+
 <br />
 <br />
 

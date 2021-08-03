@@ -18,5 +18,18 @@ namespace MVCCoreTutorial.Controllers
 
 			return View(yolo);
 		}
+
+
+		public IActionResult oop()
+		{
+
+			Yolo yolo = new Yolo();
+
+			yolo.ID = 1;
+			yolo.YoloMessage = "Yo only live oop";
+
+			return Json(yolo);
+
+		}
 	}
 }
