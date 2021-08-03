@@ -1033,6 +1033,13 @@ app.UseMvc(routes =>
 );
 ```
 <br />
+
+We now support the following URL's:
+
+* /Products/
+* /Products/List/
+* /Products/Details/32/
+
 <br />
 <br />
 <br />

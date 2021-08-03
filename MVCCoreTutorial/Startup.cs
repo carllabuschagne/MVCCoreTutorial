@@ -24,6 +24,7 @@ namespace MVCCoreTutorial
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddControllersWithViews();
+
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -51,12 +52,14 @@ namespace MVCCoreTutorial
 				endpoints.MapControllerRoute(
 					name: "default",
 					pattern: "{controller=Home}/{action=Index}/{id?}");
+
 			});
 
-
-			app.UseMvc(routes =>
-	routes.MapRoute("ProductList", "Products/List/", new { controller = "Products", action = "List" })
-);
+			//app.UseMvc(routes =>
+			//{
+			//	routes.MapRoute("Products", "Products/{action=Index}/{id?}", new { controller = "Products" });
+			//	routes.MapRoute("Default", "{controller=Home}/{action=Index}/{id?}");
+			//});
 
 		}
 	}
