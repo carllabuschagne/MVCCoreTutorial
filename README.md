@@ -1323,15 +1323,206 @@ public IActionResult Blog(string slug)
 
 **Models**
 
-**regex()**
+**View Models**
+
+View Model
+
 ```csharp
-[Route(@"blog/{slug:regex(^[[0-9]]{{1,7}}\-[[a-z0-9\-]]{{3,50}}$)}")]    
-public IActionResult Blog(string slug)    
-{    
-    ....
+public class WebUser
+{
+	public string FirstName { get; set; }
+	public string LastName { get; set; }
+}
+
 ```
 
 
 <br />
+
+Controller
+
+```csharp
+
+public class WebUserController : Controller
+{
+	public IActionResult Index()
+	{
+		WebUser wu = new WebUser();
+		wu.FirstName = "Enter first name";
+		wu.LastName = "Enter last name";
+
+		return View(wu);
+	}
+
+	[HttpPost]
+	public IActionResult Index(WebUser wu)
+	{
+		return Json(wu);
+	}
+}
+```
+
+
 <br />
 
+View
+
+```html
+
+@model MVCCoreTutorial.Models.WebUser
+
+@{
+
+}
+
+@using (var form = Html.BeginForm())
+{
+
+    <div class="row">
+
+        <div class="col">
+            @Html.LabelFor(m => m.FirstName)
+        </div>
+        <div class="col">
+            @Html.TextBoxFor(m => m.FirstName)
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <div class="col">
+            @Html.LabelFor(m => m.LastName)
+        </div>
+        <div class="col">
+            @Html.TextBoxFor(m => m.LastName)
+        </div>
+
+    </div>
+
+
+
+    <input type="submit" value="Save" />
+}
+
+```
+
+<br />
+
+
+**Data Annotations**
+
+ASP.NET MVC comes with the concept of DataAnnotations (sometimes referred to as Model Attributes), which basically allows you to add meta data to a property.
+The Display annotation.
+
+```csharp
+public class WebUser
+{
+
+	[Display(Name = "First Name")]
+	public string FirstName { get; set; }
+
+
+	[Display(Name = "Last Name")]
+	public string LastName { get; set; }
+
+}
+```
+
+
+<br />
+
+<br />
+
+
+**Model Validation**
+
+we talked about DataAnnotations and how they can enrich your Models to work even tighter together with your Views. However, a lot of the available DataAnnotations are actually directly related to the validation mechanisms found in the ASP.NET MVC framework. They will allow you to enforce various kinds of rules for your properties, which will be used in your Views and in your Controllers, where you will be able to check whether a certain Model is valid in its current state or not (e.g. after a FORM submission).
+
+```csharp
+[HttpGet]
+public IActionResult Index()
+{
+	WebUser wu = new WebUser();
+	wu.FirstName = "Enter first name";
+	wu.LastName = "Enter last name";
+
+	return View(wu);
+}
+
+[HttpPost]
+public IActionResult Index(WebUser wu)
+{
+	if (ModelState.IsValid)
+	{
+		//Model state is valid
+		return Json(wu);
+	}
+	else
+	{
+		//Model state is Invalid
+		return Content("Model state is invalid");
+	}
+}
+```
+
+
+<br />
+
+<br />
+
+
+**Displaying validation errors**
+
+we talked about DataAnnotations and how they can enrich your Models to work even tighter together with your Views. However, a lot of the available DataAnnotations are actually directly related to the validation mechanisms found in the ASP.NET MVC framework. They will allow you to enforce various kinds of rules for your properties, which will be used in your Views and in your Controllers, where you will be able to check whether a certain Model is valid in its current state or not (e.g. after a FORM submission).
+
+```html
+
+@using (var form = Html.BeginForm())
+{
+
+    <div class="row">
+
+        <div class="col">
+            @Html.LabelFor(m => m.FirstName)
+        </div>
+        <div class="col">
+            @Html.TextBoxFor(m => m.FirstName)
+            @Html.ValidationMessageFor(m => m.FirstName)
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <div class="col">
+            @Html.LabelFor(m => m.LastName)
+        </div>
+        <div class="col">
+            @Html.TextBoxFor(m => m.LastName)
+            @Html.ValidationMessageFor(m => m.LastName)
+        </div>
+
+    </div>
+
+
+
+    <input type="submit" value="Save" />
+}
+```
+<br />
+
+We also need to make sure that once the FORM is submitted, and if there are validation errors, we return the FORM to the user, so that they can see and fix these errors. We do that in our Controller, simply by returning the View and the current Model state, if there are any validation errors:
+
+<br />
+
+<br />
+
+
+**Displaying validation errors**
+
+we talked about DataAnnotations and how they can enrich your Models to work even tighter together with your Views. However, a lot of the available DataAnnotations are actually directly related to the validation mechanisms found in the ASP.NET MVC framework. They will allow you to enforce various kinds of rules for your properties, which will be used in your Views and in your Controllers, where you will be able to check whether a certain Model is valid in its current state or not (e.g. after a FORM submission).
+
+```csharp
+
+```
