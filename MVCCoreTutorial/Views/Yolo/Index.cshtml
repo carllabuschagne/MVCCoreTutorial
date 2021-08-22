@@ -183,10 +183,16 @@ yoloList.Add(y);
     @await Html.PartialAsync("_Greeting")
 
     <br />
-    
+
     @for (int i = 0; i < 3; i++)
     {
+
+        <br />
+
         @await Html.PartialAsync("_Greeting", Model, new ViewDataDictionary(ViewData) { { "index", i } })
+
+        <br />
+
     }
 
     <br />
