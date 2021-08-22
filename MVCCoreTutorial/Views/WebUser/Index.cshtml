@@ -8,13 +8,18 @@
 @using (var form = Html.BeginForm())
 {
 
+    @Html.ValidationSummary()
+
     <div class="row">
 
         <div class="col">
             @Html.LabelFor(m => m.FirstName)
         </div>
         <div class="col">
-            @Html.TextBoxFor(m => m.FirstName)
+            @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control", style = "font-weight: bold; font-size: 120%;" })
+
+            <input asp-for="FirstName" class="form-control" style="font-weight: bold; font-size: 120%;" />
+
             @Html.ValidationMessageFor(m => m.FirstName)
         </div>
 
@@ -26,7 +31,10 @@
             @Html.LabelFor(m => m.LastName)
         </div>
         <div class="col">
-            @Html.TextBoxFor(m => m.LastName)
+            @Html.TextBoxFor(m => m.LastName, new { @class = "form-control", style = "font-weight: bold; font-size: 120%;" })
+
+            <input asp-for="LastName" class="form-control" style="font-weight: bold; font-size: 120%;" />
+
             @Html.ValidationMessageFor(m => m.LastName)
         </div>
 
@@ -34,5 +42,64 @@
 
 
 
-    <input type="submit" value="Save" />
+    <div class="row">
+
+        <div class="col">
+            label
+        </div>
+        <div class="col">
+            <label asp-for="FirstName"></label>
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <div class="col">
+            input
+        </div>
+        <div class="col">
+            <input asp-for="FirstName" />
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <div class="col">
+            textarea
+        </div>
+        <div class="col">
+            <textarea asp-for="FirstName"></textarea>
+            <textarea asp-for="FirstName" cols="25" rows="3"></textarea>
+            <textarea asp-for="FirstName" style="height: 40px; width: 200px;"></textarea>
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <div class="col">
+            select
+        </div>
+        <div class="col">
+
+            <select class="custom-select" asp-items="@(new SelectList(Model.Countries))" asp-for="Countries"></select>
+
+        </div>
+
+    </div>
+
+
+
+
+
+    <div class="row">
+
+        <div class="col">
+            <input type="submit" value="Save" class="btn btn-primary" />
+        </div>
+
+    </div>
+
 }

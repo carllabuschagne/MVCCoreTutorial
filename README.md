@@ -1524,5 +1524,459 @@ We also need to make sure that once the FORM is submitted, and if there are vali
 we talked about DataAnnotations and how they can enrich your Models to work even tighter together with your Views. However, a lot of the available DataAnnotations are actually directly related to the validation mechanisms found in the ASP.NET MVC framework. They will allow you to enforce various kinds of rules for your properties, which will be used in your Views and in your Controllers, where you will be able to check whether a certain Model is valid in its current state or not (e.g. after a FORM submission).
 
 ```csharp
+[HttpPost]
+public IActionResult Index(WebUser wu)
+{
+	if (ModelState.IsValid)
+	{
+		//Model state is valid
+		return Json(wu);
+	}
+	else
+	{
+		//Model state is Invalid
+		//return Content("Model state is invalid");
+		return View(wu);
+	}
+}
+```
+<br />
+
+<br />
+
+
+Add custom error messages
+
+```csharp
+public class WebUser
+{
+	[Required(ErrorMessage = "The First name is required.")]
+	[StringLength(25, ErrorMessage = "The First name cannot be longer than 25 chars.")]
+	[Display(Name = "First Name")]
+	public string FirstName { get; set; }
+
+	[Required(ErrorMessage = "The Last name is required.")]
+	[StringLength(50, MinimumLength = 3, ErrorMessage = "The Last name cannot be longer than 50 chars.")]
+	[Display(Name = "Last Name")]
+	public string LastName { get; set; }
+}
+```
+<br />
+
+<br />
+
+Displaying a validation summary
+
+```html
+
+@model MVCCoreTutorial.Models.WebUser
+
+@{
+
+}
+
+@using (var form = Html.BeginForm())
+{
+    
+    @Html.ValidationSummary()
+
+    <div class="row">
+
+        <div class="col">
+            @Html.LabelFor(m => m.FirstName)
+        </div>
+        <div class="col">
+            @Html.TextBoxFor(m => m.FirstName)
+            @Html.ValidationMessageFor(m => m.FirstName)
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <div class="col">
+            @Html.LabelFor(m => m.LastName)
+        </div>
+        <div class="col">
+            @Html.TextBoxFor(m => m.LastName)
+            @Html.ValidationMessageFor(m => m.LastName)
+        </div>
+
+    </div>
+
+    <input type="submit" value="Save" />
+}
 
 ```
+<br />
+
+<br />
+
+**Types of Model Validation DataAnnotations**
+
+<br />
+
+**[Required]**
+ 
+For strings you should have in mind that an empty value will be treated like a NULL value and therefore result in a validation error. This behavior can be changed by using the AllowEmptyStrings property though:
+
+```csharp
+[Required(AllowEmptyStrings = true)]
+```
+
+<br />
+
+**[StringLength]**
+
+
+
+```csharp
+[StringLength(50, MinimumLength = 3)]
+```
+
+<br />
+
+**[Range]**
+
+With the [Range] attribute, you can specify a minimum and a maximum value for a numeric property (int, float, double etc.). Both a minimum and a maximum is required when you use this attribute
+
+```csharp
+[Range(1, 100)]
+```
+
+<br />
+
+**[Compare]**
+
+The [Compare] attribute allows you to set up a comparison between the property in question and another property, requiring them to match.
+
+```csharp
+[Compare("MailAddressRepeated")]
+public string MailAddress { get; set; }
+
+public string MailAddressRepeated { get; set; }
+```
+
+<br />
+
+**Specific types**
+
+If your string falls into a specific category, e.g. a phone number, the ASP.NET MVC can supply you with basic validation out of the box.
+
+```csharp
+[CreditCard] //Validates that the property has a credit card format.
+
+[EmailAddress] //Validates that the property has an e-mail format.
+
+[Phone] //Validates that the property has a telephone number format.
+
+[Url] //Validates that the property has a URL format.
+```
+
+<br />
+
+**Adding Client-side validation**
+
+Validation is performed automatically as soon as you start filling out the FORM and if you click on the Create button, the FORM is only submitted to the server if the FORM appears to be valid. If it is, and then FORM is sent back to the server, it will be server-side validated according to the same rules which you have only specified in one place.
+
+* The first line is just the regular jQuery framework - if you already include this elsewhere, you don't need to include this line
+* All references here are for a specific CDN (Content Delivery Network) - you can choose another CDN or download the files and serve them directly from your website
+* All references here are for specific versions (jQuery version 3.4.1 and so on) - you may want to check if newer versions are available
+
+```csharp
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.11/jquery.validate.unobtrusive.min.js"></script>
+```
+<br />
+
+**TAG Helpers**
+
+Tag Helpers vs. HTML Helpers
+
+```csharp
+@Html.TextBoxFor(m => m.FirstName, new { @class = "form-control", style = "font-weight: bold; font-size: 120%;" })
+```
+
+```csharp
+<input asp-for="FirstName" class="form-control" style="font-weight: bold; font-size: 120%;" />
+```
+
+<br />
+
+**The addTagHelper directive**
+
+To use Tag Helpers in your Views, you need to add support for them. This is done using the addTagHelper directive, either directly in the View where you want to use them, or if you want to use them in all your Views: In the _ViewImports.cshtml file
+
+```csharp
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+```
+
+<br />
+
+**The Form Tag Helper**
+
+* You can easily reference the Controller and the Action to submit the FORM to, or even reference a route
+* A hidden Request Verification Token is automatically generated and appended to the FORM, to help protect you against cross-site request forgery
+
+```csharp
+<form method="post" asp-controller="Blog" asp-action="UpdateEntry"></form> 
+```
+
+
+<br />
+
+**The Route attribute**
+
+As you can see above, hitting the desired Controller and Action method is easy - you simply specify the name of the Controller and the name of the Action method. However, as an alternative, you may decide to target a specific route - the route will then be responsible for hitting the desired Action.
+
+```csharp
+<form method="post" asp-route="UpdateBlogEntry"></form>
+```
+
+<br />
+
+```csharp
+[Route("Blog/Update", Name = "UpdateBlogEntry")]  
+public IActionResult Update()  
+{  
+    .....
+```
+
+
+<br />
+
+**Appending route parameters**
+
+The route you wish to hit may take one or several parameters which you may need to pass to it from your FORM. This can be done using a syntax like this:
+
+```csharp
+asp-route-[parameter-name]="value"
+```
+
+
+<br />
+
+So, if the name of the parameter of your parameter is id, your complete FORM tag could look like this:
+
+```csharp
+<form method="post" asp-route="UpdateBlogEntry" asp-route-id="@Model.Id"></form>
+```
+
+
+<br />
+
+**The Label Tag Helper**
+
+This is the Display Data Annotation
+
+```csharp
+<label asp-for="FirstName"></label>
+```
+
+
+<br />
+
+**The Input Tag Helper**
+
+One of the most commonly used is the INPUT control, which can take many forms to support various types of input. The most common type is the text input control, which will be rendered as a single-line textbox control. 
+
+```csharp
+<input asp-for="Title" />
+```
+
+
+<br />
+
+**The Textarea Tag Helper**
+
+we have the Textarea element. It generally looks like a normal text input element, but it can span multiple lines by default and comes with support for scrollbars - in other words, it's built for longer texts. ASP.NET Core comes with a nice Tag Helper for the Textarea, just like for the Input element, so let's look into it.
+
+```csharp
+<textarea asp-for="Description"></textarea>
+<textarea asp-for="FirstName" cols="25" rows="3"></textarea>
+<textarea asp-for="FirstName" style="height: 40px; width: 200px;"></textarea>
+```
+
+
+<br />
+
+**The Select Tag Helper**
+
+
+
+```csharp
+<select class="custom-select" asp-items="@(new SelectList(Model.Countries))" asp-for="Countries"></select>
+```
+
+<br />
+
+**HttpContext**
+
+ASP.NET MVC makes it easy for you to access all HTTP related functionality by gathering it all in the HttpContext class.
+The HttpContext class can be accessed from all of your Controllers. For convenience, you can access HttpContext from a property found on your Controllers called HttpContext. 
+
+<br />
+
+**HttpContext structure**
+
+* **HttpContext.Request** - all members related to the current request, e.g. the QueryString, Forms and so on.
+* **HttpContext.Response** - all members related to the Response about to be delivered, e.g. Cookies and response headers
+* **HttpContext.Session** - all members related to dealing with Session (generally used to persist data between requests)
+* **HttpContext.User** - all members related to dealing with a (potentially) authenticated user
+
+<br />
+
+**Query String (GET data)**
+
+```csharp
+/Home/QueryTest?name=Jenna Doe
+```
+
+<br />
+
+**Accessing the query string**
+
+* **HttpContext.Request.QueryString** - is basically the raw text string
+* **HttpContext.Request.Query** -  allows you to easily access keys and their values
+
+
+```csharp
+public class HomeController : Controller
+{
+    public IActionResult QueryTest()
+    {
+        string name = "John Doe";
+        if (!String.IsNullOrEmpty(HttpContext.Request.Query["name"]))
+        {
+            name = HttpContext.Request.Query["name"];
+        }
+        return Content("Name from query string: " + name);              
+    }
+}
+```
+
+<br />
+
+**Forms (POST data)**
+
+<br />
+
+**Accessing FORM data**
+
+The Form property actually works a lot like the Query property - it acts as a Dictionary with keys and their values
+Thanks to the HttpContext class and its Form property, accessing FORM/POST data is very easy in ASP.NET MVC. Using it is usually not necessary, thanks to Model Binding, but it's still useful in some cases.
+```html
+<form method="post" action="/Home/FormsTestPost">  
+    <label for="txtName">Your name:</label>  
+    <input type="text" id="txtName" name="UserName" />  
+
+    <label for="txtAge">Your age:</label>  
+    <input type="number" id="txtAge" name="UserAge" />  
+
+    <button type="submit">Submit</button>  
+</form>
+```
+
+```csharp
+public class HomeController : Controller  
+{  
+    [HttpGet]  
+    public IActionResult FormsTest()  
+    {  
+        return View();  
+    }  
+
+    [HttpPost]  
+    public IActionResult FormsTestPost()  
+    {  
+        return Content("Hello, " + HttpContext.Request.Form["UserName"] + ". You are " + HttpContext.Request.Form["UserAge"] + " years old!");  
+    }  
+}
+```
+
+
+<br />
+
+**Cookies**
+
+A cookie is basically a physical, plain-text file stored by the client (usually a browser), tied to a specific website.
+
+<br />
+
+**Setting and reading cookies**
+
+Notice how I now use the Request property instead of the Response, when reading the value back - the reason is that setting a cookie is done by adding information to the response sent to the client, while reading it means that you are pulling information from the request made by the client (a normal browser will automatically send all relevant cookies with each request).
+
+<br />
+
+Add cookie
+
+```csharp
+HttpContext.Response.Cookies.Append("user_id", "1");
+```
+
+<br />
+
+Read cookie
+
+```csharp
+var userId = HttpContext.Request.Cookies["user_id"];
+```
+
+<br />
+
+read and set
+
+```csharp
+public class CookiesController : Controller
+{
+    public IActionResult Index()
+    {
+    if(!HttpContext.Request.Cookies.ContainsKey("first_request"))
+    {
+        HttpContext.Response.Cookies.Append("first_request", DateTime.Now.ToString());
+        return Content("Welcome, new visitor!");
+    }
+    else
+    {
+        DateTime firstRequest = DateTime.Parse(HttpContext.Request.Cookies["first_request"]);
+        return Content("Welcome back, user! You first visited us on: " + firstRequest.ToString());
+    }
+    }
+}
+```
+
+
+<br />
+
+**CookieOptions**
+
+As an optional third parameter to the Append() method we just used, you can pass an instance of the CookieOptions class
+
+```csharp
+CookieOptions cookieOptions = new CookieOptions();  
+          
+cookieOptions.Expires = new DateTimeOffset(DateTime.Now.AddDays(7));
+cookieOptions.Domain = ".mywebsite.com";
+
+HttpContext.Response.Cookies.Append("first_request", DateTime.Now.ToString(), cookieOptions);
+```
+
+<br />
+
+**Sessions**
+
+As an optional third parameter to the Append() method we just used, you can pass an instance of the CookieOptions class
+
+```csharp
+CookieOptions cookieOptions = new CookieOptions();  
+          
+cookieOptions.Expires = new DateTimeOffset(DateTime.Now.AddDays(7));
+cookieOptions.Domain = ".mywebsite.com";
+
+HttpContext.Response.Cookies.Append("first_request", DateTime.Now.ToString(), cookieOptions);
+```
+
+<br />
+

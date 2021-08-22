@@ -13,9 +13,14 @@ namespace MVCCoreTutorial.Controllers
 		public IActionResult Index()
 		{
 			WebUser wu = new WebUser();
-			wu.FirstName = "Enter first name";
-			wu.LastName = "Enter last name";
-
+			wu.FirstName = "";
+			wu.LastName = "";
+			wu.Countries = new List<string>()
+												{
+													"USA",
+													"Great Britain",
+													"Germany"
+												};
 			return View(wu);
 		}
 
@@ -30,10 +35,11 @@ namespace MVCCoreTutorial.Controllers
 			else
 			{
 				//Model state is Invalid
-				return Content("Model state is invalid");
+				//return Content("Model state is invalid");
+				return View(wu);
 			}
 
-			
+
 
 		}
 
