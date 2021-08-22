@@ -1967,16 +1967,71 @@ HttpContext.Response.Cookies.Append("first_request", DateTime.Now.ToString(), co
 
 **Sessions**
 
-As an optional third parameter to the Append() method we just used, you can pass an instance of the CookieOptions class
+**ASP.NET Core MVC: Adding support for Sessions**
+
 
 ```csharp
-CookieOptions cookieOptions = new CookieOptions();  
-          
-cookieOptions.Expires = new DateTimeOffset(DateTime.Now.AddDays(7));
-cookieOptions.Domain = ".mywebsite.com";
-
-HttpContext.Response.Cookies.Append("first_request", DateTime.Now.ToString(), cookieOptions);
+public void ConfigureServices(IServiceCollection services)
+{        
+    services.AddSession();
+    services.AddMvc();                
+}
 ```
 
 <br />
 
+
+```csharp
+services.AddSession(options => 
+    {
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    });
+```
+
+<br />
+
+
+```csharp
+string name = HttpContext.Session.GetString("Name");
+```
+
+<br />
+
+
+```csharp
+HttpContext.Session.SetString("Name", name);
+```
+
+<br />
+
+**Caching**
+
+**ResponseCache**
+
+ResponseCache, sometimes referred to as HTTP-based response caching, is most commonly applied directly to the action of a Controller, to let the browser know that it can safely cache the response for a specific amount of time. So, if the result of your Controller action is always static, or at least remain the same for a specific amount of time, you can tell the browser to cache it like this:
+
+```csharp
+public class CacheController : Controller  
+{  
+    [ResponseCache(Duration = 120)]      
+    public IActionResult Index()  
+    {          
+        return View();  
+    }  
+}
+```
+
+```csharp
+[ResponseCache(Duration = 120, VaryByQueryKeys = new[] { "id" })]      
+public IActionResult Details(int id)  
+{          
+...
+```
+VaryByQueryKeys
+```csharp
+[ResponseCache(Duration = 120, VaryByQueryKeys = new[] { "*" })]   
+```
+VaryByHeader
+```csharp
+[ResponseCache(Duration = 120, VaryByHeader = "User-Agent" )]
+```
